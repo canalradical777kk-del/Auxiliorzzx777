@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Auxílio 1.1 — RzX Vip</title>
+<style>
+:root{
+  --bg:#060608;
+  --card:#0f0f11;
+  --muted:#bfc1c6;
+  --accent1:#8f56ff;
+  --accent2:#c89bff;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+html,body{height:100%;margin:0;color:#fff;overflow:hidden;}
+body{background: var(--bg); -webkit-font-smoothing:antialiased;}
+#particle-canvas{position:fixed; inset:0; z-index:0; pointer-events:none;}
+
+/* Painel (atrás) */
+.center-wrap{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; z-index:1; position:relative; filter: blur(0); transition: filter 0.3s ease;}
+.card{width:min(360px,92vw); background: linear-gradient(180deg, rgba(255,100,170,0.12), rgba(255,150,200,0.1)); border-radius:18px; padding:22px; box-shadow:0 12px 40px rgba(140,80,255,0.08), inset 0 1px 0 rgba(255,255,255,0.02); border:1px solid rgba(140,80,255,0.06); backdrop-filter:blur(6px);}
+.title{text-align:center;font-size:22px;font-weight:700;margin-bottom:14px;}
+.section{background: rgba(255,255,255,0.02); border-radius:12px; padding:12px 14px; margin-bottom:12px; border:1px solid rgba(255,255,255,0.02);}
+.accordion-head{display:flex;align-items:center;justify-content:space-between;font-weight:600;cursor:pointer;user-select:none;}
+.chev{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,0.02);transition: transform .18s ease;}
+.accordion-body{ margin-top:10px; display:none; }
+.accordion-body.active{ display:block; }
+.checkbox-row{display:flex; gap:12px; align-items:center; margin:12px 0;}
+.checkbox{ width:22px; height:22px; border-radius:6px; display:grid;place-items:center; background:#111; border:1px solid rgba(255,255,255,0.04); cursor:pointer; }
+.checkbox input{display:none;}
+.checkbox svg{width:100%;height:100%;opacity:0;border-radius:6px;transition: all .12s ease;}
+.option-label{ flex:1; color:var(--muted); font-weight:600; }
+.fov-row{ display:flex; align-items:center; gap:12px; margin-top:8px; color:var(--muted);}
+.fov-row input[type=range]{ flex:1; -webkit-appearance: none; height:8px; border-radius:8px; background: linear-gradient(90deg,var(--accent1),var(--accent2)); outline:none;}
+.fov-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none; width:18px;height:18px;border-radius:50%; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,0.5);}
+.buttons{ display:flex; flex-direction:column; gap:12px; margin-top:8px;}
+.btn{padding:12px 14px; border-radius:12px; font-weight:700; border:none; cursor:pointer; background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#fff; box-shadow: 0 6px 20px rgba(143,86,255,0.18);}
+.btn.active{outline: 2px solid rgba(255,255,255,0.06); transform: translateY(-1px); box-shadow: 0 10px 30px rgba(143,86,255,0.22);}
+.btn.secondary{background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); border:1px solid rgba(255,255,255,0.03); color:var(--muted); font-weight:700;}
+#statusContainer{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background: rgba(20,20,20,0.85);padding:10px 18px;border-radius:14px;font-weight:700;font-size:16px;opacity:0;transition: opacity 0.5s ease;pointer-events:none;z-index:1000;}
+
+/* Mini Painel de Cores */
+#floatingColorBtn{position:fixed;bottom:28px;right:28px;width:40px;height:40px;border-radius:50%;background:#8f56ff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.4);}
+#floatingColorPanel{position:fixed;bottom:76px;right:28px;background: rgba(15,15,17,0.95);padding:10px;border-radius:14px;display:flex;flex-wrap:wrap;gap:8px;width:160px;opacity:0; transform: translateY(10px); transition: all 0.25s ease; z-index:999;}
+#floatingColorPanel.show{opacity:1; transform: translateY(0);}
+.color-option{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);transition: transform 0.15s ease;}
+.color-option:hover{transform: scale(1.2);}
+
+/* Tela de login */
+#loginOverlay{
+  position:fixed; inset:0; background: rgba(0,0,0,0.85); display:flex; justify-content:center; align-items:center; z-index:10000; backdrop-filter:blur(6px);
+}
+#loginBox{
+  background: rgba(15,15,17,0.95); padding:30px; border-radius:18px; width:min(320px,90vw); text-align:center; box-shadow:0 8px 30px rgba(0,0,0,0.5);
+}
+#loginBox input{
+  width:100%; padding:12px 14px; border-radius:10px; border:none; margin:12px 0; font-size:16px;
+  background: rgba(255,255,255,0.05); color:#fff;
+}
+#loginBox button{
+  width:100%; padding:12px; border-radius:12px; border:none; font-weight:700; background: linear-gradient(90deg,var(--accent1),var(--accent2)); color:#fff; cursor:pointer; margin-top:12px;
+}
+#loginBox h2{margin-bottom:20px;}
+</style>
+</head>
+<body>
+<canvas id="particle-canvas"></canvas>
+
+<!-- Login Overlay -->
+<div id="loginOverlay">
+  <div id="loginBox">
+    <h2>Login com Key</h2>
+    <input type="text" id="keyInput" placeholder="Digite sua key"/>
+    <button id="loginBtn">Entrar</button>
+  </div>
+</div>
+
+<!-- Painel -->
+<div class="center-wrap">
+<div class="card">
+  <div class="title">Auxílio 1.1.0.2V</div>
+
+  <div class="section">
+    <div class="accordion-head" data-accordion="sistema">
+      <div>▶ Sistema Avançado</div><div class="chev">▸</div>
+    </div>
+    <div class="accordion-body" id="sistema-body">
+      <div class="checkbox-row">
+        <span class="checkbox" data-option="120 FPS"><input type="checkbox"/><svg></svg></span>
+        <span class="option-label">120 FPS</span>
+      </div>
+      <div class="checkbox-row">
+        <span class="checkbox" data-option="Norecoil"><input type="checkbox"/><svg></svg></span>
+        <span class="option-label">Norecoil</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="accordion-head" data-accordion="mira">
+      <div>▼ Ajustes de Mira</div><div class="chev">▾</div>
+    </div>
+    <div class="accordion-body active" id="mira-body">
+      <div class="checkbox-row"><span class="checkbox" data-option="Aim Bot"><input type="checkbox"/><svg></svg></span><span class="option-label">Aim Bot</span></div>
+      <div class="checkbox-row"><span class="checkbox" data-option="Head Trick"><input type="checkbox"/><svg></svg></span><span class="option-label">Head Trick</span></div>
+      <div class="checkbox-row"><span class="checkbox" data-option="Aumentar Precisão"><input type="checkbox"/><svg></svg></span><span class="option-label">Aumentar Precisão</span></div>
+      <div class="fov-row">
+        <div style="font-weight:700;color:var(--muted);min-width:40px;">FOV</div>
+        <input id="fovRange" type="range" min="0" max="100" value="40"/>
+        <div id="fovValue" style="width:26px;text-align:right;font-weight:700;color:var(--muted)">40</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <button id="injectorBtn" class="btn">Injector</button>
+    <button id="resBtn" class="btn">Ativar Resolução</button>
+    <button id="applyBtn" class="btn">Aplicar pasta</button>
+    <input type="file" id="folderInput" webkitdirectory style="display:none">
+  </div>
+</div>
+</div>
+
+<!-- Mini Painel de cores -->
+<div id="floatingColorBtn">🎨</div>
+<div id="floatingColorPanel">
+  <div class="color-option" data-accent1="#8f56ff" data-accent2="#c89bff" style="background:#8f56ff"></div>
+  <div class="color-option" data-accent1="#ff4f9c" data-accent2="#ff94d9" style="background:#ff4f9c"></div>
+  <div class="color-option" data-accent1="#56ff8f" data-accent2="#89ffc8" style="background:#56ff8f"></div>
+  <div class="color-option" data-accent1="#ff8f56" data-accent2="#ffc889" style="background:#ff8f56"></div>
+  <div class="color-option" data-accent1="#4fd1ff" data-accent2="#56c8ff" style="background:#4fd1ff"></div>
+  <div class="color-option" data-accent1="#ffd156" data-accent2="#fff289" style="background:#ffd156"></div>
+  <div class="color-option" data-accent1="#ff56e0" data-accent2="#ff9cf2" style="background:#ff56e0"></div>
+  <div class="color-option" data-accent1="#6bff56" data-accent2="#a0ff89" style="background:#6bff56"></div>
+</div>
+
+<div id="statusContainer"></div>
+
+<script>
+// === LOGIN KEY ===
+const loginOverlay = document.getElementById('loginOverlay');
+const loginBtn = document.getElementById('loginBtn');
+const keyInput = document.getElementById('keyInput');
+
+loginBtn.addEventListener('click', ()=>{
+  if(keyInput.value.trim() === 'key-71271608X'){
+    loginOverlay.style.display = 'none';
+    document.querySelector('.center-wrap').style.filter = 'blur(0)';
+    showStatus("Bem-vindo!");
+  } else {
+    alert("O painel no APK está passando por uma atualização. Volte mais tarde! ✅);
+  }
+});
+
+// === RESTO DO SEU CÓDIGO EXISTENTE ===
+
+// Accordions
+document.querySelectorAll('.accordion-head').forEach(head=>{
+  head.addEventListener('click', ()=>{
+    const key = head.getAttribute('data-accordion');
+    const body = document.getElementById(key+'-body');
+    const chev = head.querySelector('.chev');
+    if(body.classList.contains('active')){
+      body.classList.remove('active'); if(chev) chev.style.transform='rotate(0deg)';
+    } else {
+      body.classList.add('active'); if(chev) chev.style.transform='rotate(90deg)';
+    }
+  });
+});
+
+// FOV Slider
+const fovRange = document.getElementById('fovRange');
+const fovValue = document.getElementById('fovValue');
+fovRange.addEventListener('input',()=>{fovValue.textContent=fovRange.value;});
+
+// Status
+const status = document.getElementById('statusContainer');
+function showStatus(text){
+    status.textContent = text;
+    status.style.opacity = "1";
+    setTimeout(()=>{status.style.opacity = "0";},1200);
+}
+
+// Checkboxes
+let accent1 = getComputedStyle(document.documentElement).getPropertyValue('--accent1').trim();
+document.querySelectorAll('.checkbox').forEach(box => {
+  const svg = box.querySelector('svg');
+  box.addEventListener('click', () => {
+    const isActive = box.classList.toggle('checked');
+    const option = box.dataset.option;
+    if(isActive){
+      svg.style.opacity = "1";
+      svg.style.background = accent1;
+      svg.innerHTML = "";
+      showStatus(option + " ATIVADO");
+    } else {
+      svg.style.opacity = "0";
+      svg.style.background = "none";
+      showStatus(option + " DESATIVADO");
+    }
+  });
+});
+
+// Partículas
+const canvas=document.getElementById('particle-canvas'), ctx=canvas.getContext('2d');
+let w=canvas.width=innerWidth, h=canvas.height=innerHeight;
+window.addEventListener('resize',()=>{w=canvas.width=innerWidth;h=canvas.height=innerHeight;initParticles();});
+let particles=[], PARTICLE_COUNT=Math.min(400, Math.floor((w*h)/10000));
+function rand(min,max){return Math.random()*(max-min)+min;}
+function initParticles(){particles=[];for(let i=0;i<PARTICLE_COUNT;i++){particles.push({x:rand(0,w),y:rand(0,h),vx:rand(-0.8,0.8),vy:rand(-0.8,0.8),r:rand(2,5),colorPhase:Math.random()*Math.PI*2});}}
+initParticles();
+function step(){
+  ctx.clearRect(0,0,w,h);
+  for(let i=0;i<particles.length;i++){
+    let p=particles[i];
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=w;if(p.x>w)p.x=0;
+    if(p.y<0)p.y=h;if(p.y>h)p.y=0;
+    const alpha=0.5+Math.sin(p.colorPhase+=0.05)*0.5;
+    const r=parseInt(accent1.slice(1,3),16), g=parseInt(accent1.slice(3,5),16), b=parseInt(accent1.slice(5,7),16);
+    ctx.beginPath();ctx.fillStyle=`rgba(${r},${g},${b},${alpha})`;ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+  }
+  requestAnimationFrame(step);
+}
+step();
+
+// Mini Painel de cores
+const floatingBtn=document.getElementById('floatingColorBtn'), floatingPanel=document.getElementById('floatingColorPanel');
+floatingBtn.addEventListener('click',()=>{floatingPanel.classList.toggle('show');});
+document.querySelectorAll('.color-option').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    accent1 = btn.dataset.accent1;
+    const accent2 = btn.dataset.accent2;
+    document.querySelectorAll('.btn').forEach(b=>b.style.background=`linear-gradient(90deg,${accent1},${accent2})`);
+    document.querySelectorAll('.checkbox.checked svg').forEach(c => c.style.background = accent1);
+    document.querySelectorAll('.fov-row input[type=range]').forEach(r=>r.style.background=`linear-gradient(90deg,${accent1},${accent2})`);
+  });
+});
+
+// Aplicar Pasta
+const applyBtn = document.getElementById('applyBtn');
+const folderInput = document.getElementById('folderInput');
+applyBtn.addEventListener('click', () => { folderInput.click(); });
+folderInput.addEventListener('change', (event) => {
+    const files = event.target.files;
+    if(files.length > 0){ showStatus(files.length + " arquivo(s) selecionado(s)"); }
+    else { showStatus("Nenhum arquivo selecionado"); }
+});
+
+// Injector
+const injectorBtn = document.getElementById('injectorBtn');
+injectorBtn.addEventListener('click', () => {
+    showStatus("Tentando abrir Free Fire...");
+    window.location.href = "freefire://";
+});
+
+// Ativar Resolução
+const resBtn = document.getElementById('resBtn');
+let resActive = false;
+resBtn.addEventListener('click', () => {
+    resActive = !resActive;
+    if(resActive){
+        resBtn.classList.add('active');
+        showStatus("Resolução ATIVADA");
+    } else {
+        resBtn.classList.remove('active');
+        showStatus("Resolução DESATIVADA");
+    }
+});
+</script>
+</body>
+</html>
